@@ -3,7 +3,7 @@ import sqlite3
 class SQLite:
 
     def __init__(self):
-        self.connection = sqlite3.connect('core.sqlite')
+        self.connection = sqlite3.connect('core')
         self.cursor = self.connection.cursor()
 
     def magic(self, sql, data=None):
