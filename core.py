@@ -2,15 +2,9 @@
 import re
 import RU
 import adm
-import time
 import tools
-import logging
-import calendar
-import requests
-import threading
 from sqlite3 import Error
 from SQLite import SQLite
-from datetime import datetime
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
 
@@ -33,7 +27,7 @@ def start(bot, update):
             data=(user.id, user.name, user.first_name))
     except Error:
         return  tools.log('User "%s", error "%s"' % (user.id, error))
-    markup = [[InlineKeyboardButton("Refresh", callback_data='refr'),]]
+    markup = [[InlineKeyboardButton("Что нового", callback_data='refr'),]]
     update.message.reply_text(RU.welcome1.format(user.first_name), reply_markup=InlineKeyboardMarkup(markup))
 
 def button(bot, update):
@@ -102,8 +96,7 @@ def button(bot, update):
         lot = query.data[4:]
 
     elif int(query.data) in ids:
-        d = datetime.utcnow()
-        stamp = calendar.timegm(d.utctimetuple())
+        stamp = tools.timestamp()
         lot = db.magic('select * from lot where id = (?)', (query.data,)).fetchall()[0]
         try:
             lotPrice = db.magic('select max(price) from room where lotID = {}'.format(lot,)).fetchall()
@@ -122,12 +115,17 @@ def button(bot, update):
 
 
 def setprice(bot, update):
-    update.message.reply_text(RU.setyourprice)
-    return SET
+    global  idlot
+    bot.send_message(text = RU.setyourprice,
+                     chat_id=update.callback_query.from_user.id)
+    idlot = update.callback_query.data[4:]
+    return SET#, update.callback_query.data
 
 def upPrice(bot, update):
+    global idlot
     user = update.message.from_user
     db = SQLite()
+    lot = db.magic('select max(price) from room where lotID = {}'.format(idlot))
 
 
 def help(bot, update):
@@ -142,6 +140,7 @@ def main():
     updater = Updater(RU.token)
 
     addlot_handler = adm.addlot()
+
     setPrice_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(pattern='Set', callback=setprice)],
         states={

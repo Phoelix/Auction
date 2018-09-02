@@ -3,9 +3,9 @@ import tools
 from SQLite import SQLite
 from sqlite3 import Error
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, Filters
+from telegram.ext import ConversationHandler, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-NAME,DESCR,PRICE,MAX,RATE,PICTS,END=range(7)
+CHECK,NAME,DESCR,PRICE,MAX,RATE,PICTS,END=range(8)
 picsID = ''
 
 def addlot():
@@ -22,19 +22,12 @@ def addlot():
         fallbacks=[CommandHandler('end', end)]
     )
 
-def editlot():
-    return ConversationHandler(
-        entry_points=[CommandHandler('editlot', al1)],  # TODO Filters.user()
-        states={
 
-        },
-        fallbacks=[CommandHandler('end', end)]
-    )
-
-
-def el1(bot, update):
+def bttn(bot, update):
     db = SQLite()
-
+    query = update.callback_query
+    id = query.data[1:]
+    lot = db.magic('select * from lot where id = {}'.format(id)).fetchall()[0]
 
 
 def al1(bot, update):
@@ -110,6 +103,7 @@ def pics(bot, update):
     else:
         picsID = str(picsID)+' '+text
     db.magic('update lot set pictures = (?) where id = {}'.format(idlot), (picsID,))
+
 
 def end(bot,update):
     update.message.reply_text(RU.end)
