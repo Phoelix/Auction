@@ -2,20 +2,27 @@ token = '453318336:AAGjyobZopPBKqlKzokca2KuXfdNjQoLbnQ'
 
 
 
-welcome1 = 'Hi, {}!'
+welcome1 = 'Здравствуйте, {}! Рад вас видеть.'
 
 
 
 
 
-aname = 'Name'
-description = 'description'
-price = 'price'
-pricewrong = 'pricewrong'
-maxprace = 'maxprace'
-rate = 'rate'
-pics = 'pics'
-end = 'end'
-empty = 'empty'
-lot = 'lot {}, current price {}'
-setyourprice = 'setyourprice'
+aname = 'Введите название лота'
+description = 'Введите описание лота'
+price = 'Напишите стартовую стоимость лота'
+pricewrong = 'Вы написали неправильное значение (цену)'
+maxprace = 'Введите МАКСИМАЛЬНУЮ цену'
+rate = 'Минимальная ставка:'
+pics = 'Добавьте картинки, после чего ввведите /end'
+end = 'Действие завершено'
+tradelist = 'Выберите, в каком аукционе вы хотите учавствовать'
+empty = 'Пусто? Хм! Извините, но пока нет запланированных торгов.'
+lot = 'Вы находитесь на торгах "{}", последняя цена - {}'
+setyourprice = 'Введите вашу цену'
+willnotific3 = 'Торги по лоту {} начнутся {} в {}'
+hournotific1 = 'Внимание, через час начнутся торги по лоту {}'
+tenminnotific1 = 'Через десять минут начнется торг по лоту {}'
+starttrade1 = '{}'
+new = 'Что нового'
+seldate = 'Выберите дату'

@@ -1,11 +1,10 @@
 import logging
-import calendar
 from datetime import datetime
 
 
 def timestamp():
     d = datetime.utcnow()
-    return calendar.timegm(d.utctimetuple())
+    return round(datetime.timestamp(d))
 
 def log(text, info=True):
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

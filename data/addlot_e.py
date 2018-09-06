@@ -1,12 +1,15 @@
+#!/usr/bin/python3 
+# -*- coding: utf-8 -*-
 import RU
 import tools
-from SQLite import SQLite
+from .SQLite import SQLite
 from sqlite3 import Error
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 CHECK,NAME,DESCR,PRICE,MAX,RATE,PICTS,END=range(8)
-picsID = ''
+picsID = None
+idlot = 0
+
 
 def addlot():
     return ConversationHandler(
@@ -23,28 +26,20 @@ def addlot():
     )
 
 
-def bttn(bot, update):
-    db = SQLite()
-    query = update.callback_query
-    id = query.data[1:]
-    lot = db.magic('select * from lot where id = {}'.format(id)).fetchall()[0]
-
-
 def al1(bot, update):
     global idlot
     db = SQLite()
     idlot = tools.timestamp()
-    db.magic('insert into lot(id) values (?)', (idlot,))
+    db.magic('insert into Lot(utcID) values (?)', (idlot,))
     update.message.reply_text(RU.aname)
     return NAME
-
 
 def name(bot, update):
     db = SQLite()
     global idlot
     update.message.reply_text(RU.description)
     name = update.message.text
-    db.magic('update lot set head = (?) where id = {}'.format(idlot), (name,))
+    db.magic('update Lot set name = (?) where utcID = {}'.format(idlot), (name,))
     tools.log('Created lot {} with name {}'.format(idlot, name))
     return DESCR
 
@@ -54,7 +49,7 @@ def descr(bot, update):
     global idlot
     update.message.reply_text(RU.price)
     descr = update.message.text
-    db.magic('update lot set description = (?) where id = {}'.format(idlot), (descr,))
+    db.magic('update Lot set dscr = (?) where id = {}'.format(idlot), (descr,))
     tools.log('Lot {} description updated'.format(idlot))
     return PRICE
 
@@ -65,19 +60,23 @@ def price(bot, update):
     update.message.reply_text(RU.maxprace)
     try: price = float(update.message.text)
     except ValueError: return update.message.reply_text(RU.pricewrong)
-    db.magic('update lot set sPrice = (?), price = (?) where id = {}'.format(idlot), (price,price))
+    db.magic('update Lot set sprice = (?) where id = {}'.format(idlot), (price,))
     tools.log('Lot {} price updated'.format(idlot))
     return MAX
 
 def maxp(bot, update):
-    db = SQLite()
-    global idlot
-    update.message.reply_text(RU.rate)
-    try: price = float(update.message.text)
-    except ValueError: return update.message.reply_text(RU.pricewrong)
-    db.magic('update lot set maxPrice = (?) where id = {}'.format(idlot), (price,))
-    tools.log('Lot {} rate updated'.format(idlot))
-    return RATE
+    if update.message.text != '-':
+        db = SQLite()
+        global idlot
+        update.message.reply_text(RU.rate)
+        try: price = float(update.message.text)
+        except ValueError: return update.message.reply_text(RU.pricewrong)
+        db.magic('update Lot set fprice = (?) where id = {}'.format(idlot), (price,))
+        tools.log('Lot {} rate updated'.format(idlot))
+        return RATE
+    else:
+        update.message.reply_text(RU.rate)
+        return RATE
 
 
 def rate(bot, update):
@@ -86,7 +85,7 @@ def rate(bot, update):
     update.message.reply_text(RU.pics)
     try: price = float(update.message.text)
     except ValueError: return update.message.reply_text(RU.pricewrong)
-    db.magic('update lot set rate = (?) where id = {}'.format(idlot), (price,))
+    db.magic('update Lot set range = (?) where id = {}'.format(idlot), (price,))
     tools.log('Lot {} rate updated'.format(idlot))
     return PICTS
 
@@ -96,7 +95,7 @@ def pics(bot, update):
     db = SQLite()
     global idlot
     text = update.message.photo[4].file_id
-    try: picsID = db.magic('select pictures from lot where id = (?)', (idlot,)).fetchall()[0][0]  #TODO is null
+    try: picsID = db.magic('select pictures from Lot where id = (?)', (idlot,)).fetchall()[0][0]  #TODO is null
     except Error: pass
     if picsID is None:
         picsID = text
@@ -108,6 +107,3 @@ def pics(bot, update):
 def end(bot,update):
     update.message.reply_text(RU.end)
     return ConversationHandler.END
-
-def error(bot, update, error):
-    tools.log('Update {} caused error {}'.format(update, error), False)
